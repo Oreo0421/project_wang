@@ -5,10 +5,10 @@ import os
 import json
 
 # Path to  .smc file
-file_path = "/home/zhiyw/Desktop/DNA-randering-part1/dna-rendering-part1-apose/dna_rendering_part1_apose/apose_main/0012_apose02.smc"
+file_path = "/home/fzhi/fzt/dna/apose_main/0008_apose01.smc"
 
 # Create a directory for saving calibration data
-output_dir = "/home/zhiyw/Desktop/DNA-randering-part1/smc2obj/extract"
+output_dir = "/home/fzhi/fzt/output"
 os.makedirs(output_dir, exist_ok=True)
 
 try:
