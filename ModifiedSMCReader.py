@@ -178,3 +178,29 @@ class SMCReader:
         self.Camera_5mp_info = None
         self.Camera_12mp_info = None 
         self.Kinect_info = None
+
+    def world_to_camera_to_camera_to_world(RT_matrix):
+        """
+        将世界坐标到相机坐标的RT矩阵转换为相机坐标到世界坐标的变换矩阵
+        """
+        # 确保RT_matrix是4x4格式
+        if RT_matrix.shape == (3, 4):
+            # 将3x4矩阵扩展为4x4矩阵
+            RT_4x4 = np.vstack([RT_matrix, [0, 0, 0, 1]])
+        else:
+            RT_4x4 = RT_matrix.copy()
+
+        # 提取旋转矩阵R和平移向量t
+        R = RT_4x4[:3, :3]  # 3x3 旋转矩阵
+        t = RT_4x4[:3, 3]  # 3x1 平移向量
+
+        # 计算逆变换：相机坐标到世界坐标
+        R_inv = R.T  # 旋转矩阵的逆等于其转置
+        t_inv = -R_inv @ t  # 新的平移向量
+
+        # 构建相机到世界坐标的4x4变换矩阵
+        camera_to_world = np.eye(4)
+        camera_to_world[:3, :3] = R_inv
+        camera_to_world[:3, 3] = t_inv
+
+        return camera_to_world

@@ -5,10 +5,10 @@ import os
 import json
 
 # Path to  .smc file
-file_path = "/home/zhiyw/Desktop/DNA-randering-part1/dna-rendering-part1-apose/dna_rendering_part1_apose/apose_main/0012_apose02.smc"
+file_path = "/home/fzhi/fzt/dna/apose_main/0008_apose01.smc"
 
 # Create a directory for saving calibration data
-output_dir = "/home/zhiyw/Desktop/DNA-randering-part1/smc2obj/extract"
+output_dir = "/home/fzhi/fzt/output"
 os.makedirs(output_dir, exist_ok=True)
 
 try:
@@ -46,6 +46,40 @@ try:
                     matrix = all_calibration[camera_id][matrix_type]
                     
                     if matrix is not None:
+                        if matrix_type == 'RT':
+                            try:
+                                # 转换为相机到世界坐标的变换矩阵
+                                camera_to_world = reader.world_to_camera_to_camera_to_world(matrix)
+
+                                # 保存世界坐标变换矩阵
+                                np.save(os.path.join(cam_dir, "RT_world.npy"), camera_to_world)
+                                np.savetxt(os.path.join(cam_dir, "RT_world.txt"), camera_to_world, fmt='%.10f')
+
+                                # 添加到camera_data
+                                camera_data['RT_world'] = camera_to_world.tolist()
+
+                                # 提取相机位置和朝向信息
+                                camera_position = camera_to_world[:3, 3]
+                                camera_orientation = camera_to_world[:3, :3]
+
+                                # 保存相机位置
+                                np.save(os.path.join(cam_dir, "camera_position.npy"), camera_position)
+                                np.savetxt(os.path.join(cam_dir, "camera_position.txt"), camera_position, fmt='%.10f')
+
+                                # 保存相机朝向
+                                np.save(os.path.join(cam_dir, "camera_orientation.npy"), camera_orientation)
+                                np.savetxt(os.path.join(cam_dir, "camera_orientation.txt"), camera_orientation,
+                                           fmt='%.10f')
+
+                                # 添加到summary
+                                camera_data['camera_position'] = camera_position.tolist()
+                                camera_data['camera_orientation'] = camera_orientation.tolist()
+
+                                print(
+                                    f"  Camera {camera_id} - Position in world coordinates: [{camera_position[0]:.6f}, {camera_position[1]:.6f}, {camera_position[2]:.6f}]")
+
+                            except Exception as e:
+                                print(f"  Warning: Could not process RT matrix for camera {camera_id}: {str(e)}")
                         # Save as numpy array
                         np.save(os.path.join(cam_dir, f"{matrix_type}.npy"), matrix)
                         
