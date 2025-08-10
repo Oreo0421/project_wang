@@ -121,9 +121,9 @@ class CameraCalibrationProcessor:
                 np.savetxt(os.path.join(cam_dir, f"{matrix_type}.txt"), matrix, fmt='%.10f')
                 camera_data[matrix_type] = matrix.tolist()
                 
-                print(f"  ✓ Saved {matrix_type} matrix for camera {camera_id}")
+                print(f"  Saved {matrix_type} matrix for camera {camera_id}")
             else:
-                print(f"  ⚠ Skipping {matrix_type} for camera {camera_id} (not available)")
+                print(f"  Skipping {matrix_type} for camera {camera_id} (not available)")
         
         # 特殊处理RT矩阵 - 生成世界坐标相关数据
         if 'RT' in calibration_data and calibration_data['RT'] is not None:
@@ -171,10 +171,10 @@ class CameraCalibrationProcessor:
                 camera_data['world2view'] = world2view.tolist()
                 camera_data['world2view2'] = world2view2.tolist()
                 
-                print(f"  ✓ Camera {camera_id} world position: [{camera_position[0]:.6f}, {camera_position[1]:.6f}, {camera_position[2]:.6f}]")
+                print(f" Camera {camera_id} world position: [{camera_position[0]:.6f}, {camera_position[1]:.6f}, {camera_position[2]:.6f}]")
                 
             except Exception as e:
-                print(f"  ❌ Error processing RT matrix for camera {camera_id}: {str(e)}")
+                print(f" Error processing RT matrix for camera {camera_id}: {str(e)}")
         
         # 处理内参矩阵 - 提取相机参数
         if 'K' in calibration_data and calibration_data['K'] is not None and camera_info:
@@ -197,10 +197,10 @@ class CameraCalibrationProcessor:
                         json.dump(camera_params, f, indent=2)
                     
                     camera_data['camera_params'] = camera_params
-                    print(f"  ✓ Extracted camera parameters: FOV_X={math.degrees(camera_params['fov_x']):.1f}°, FOV_Y={math.degrees(camera_params['fov_y']):.1f}°")
+                    print(f"  Extracted camera parameters: FOV_X={math.degrees(camera_params['fov_x']):.1f}°, FOV_Y={math.degrees(camera_params['fov_y']):.1f}°")
                     
             except Exception as e:
-                print(f"  ❌ Error extracting camera parameters for camera {camera_id}: {str(e)}")
+                print(f"  Error extracting camera parameters for camera {camera_id}: {str(e)}")
         
         return camera_data
     
@@ -237,15 +237,15 @@ def main():
     
     try:
         # 创建SMC读取器
-        print("🔄 Loading .smc file...")
+        print("Loading .smc file...")
         reader = SMCReader(file_path)
         
         # 打印可用键
-        print(f"\n📋 Available keys: {reader.get_available_keys()}")
+        print(f"\n Available keys: {reader.get_available_keys()}")
         
         # 检查Camera_Parameter
         if 'Camera_Parameter' not in reader.get_available_keys():
-            print("❌ Camera_Parameter not found!")
+            print(" Camera_Parameter not found!")
             return
         
         # 获取相机信息
@@ -253,30 +253,30 @@ def main():
         camera_5mp_info = reader.get_Camera_5mp_info()
         if camera_5mp_info:
             camera_info["Camera_5mp"] = camera_5mp_info
-            print(f"\n📷 Camera 5MP: {camera_5mp_info['num_device']} devices, {camera_5mp_info['num_frame']} frames, {camera_5mp_info['resolution']}")
+            print(f"\nCamera 5MP: {camera_5mp_info['num_device']} devices, {camera_5mp_info['num_frame']} frames, {camera_5mp_info['resolution']}")
         
         camera_12mp_info = reader.get_Camera_12mp_info()
         if camera_12mp_info:
             camera_info["Camera_12mp"] = camera_12mp_info
-            print(f"📷 Camera 12MP: {camera_12mp_info['num_device']} devices, {camera_12mp_info['num_frame']} frames, {camera_12mp_info['resolution']}")
+            print(f" Camera 12MP: {camera_12mp_info['num_device']} devices, {camera_12mp_info['num_frame']} frames, {camera_12mp_info['resolution']}")
         
         # 获取标定数据
-        print("\n🔄 Extracting calibration data...")
+        print("\n Extracting calibration data...")
         all_calibration = reader.get_Calibration_all()
         
         if not all_calibration:
-            print("❌ No calibration data found!")
+            print(" No calibration data found!")
             return
         
-        print(f"✅ Found calibration data for {len(all_calibration)} cameras")
+        print(f"Found calibration data for {len(all_calibration)} cameras")
         
         # 处理每个相机
         summary = {}
         all_camera_positions = {}
         
-        print("\n🔄 Processing cameras...")
+        print("\n Processing cameras...")
         for camera_id in sorted(all_calibration.keys(), key=int):
-            print(f"\n📷 Processing Camera {camera_id}:")
+            print(f"\n Processing Camera {camera_id}:")
             
             camera_data = processor.process_camera_calibration(
                 camera_id, 
@@ -292,22 +292,22 @@ def main():
             
             # 打印基础信息
             if all(all_calibration[camera_id].get(mt) is not None for mt in ['K', 'D', 'RT']):
-                print(f"  ✓ All essential matrices available for Camera {camera_id}")
+                print(f"   All essential matrices available for Camera {camera_id}")
         
         # 保存汇总数据
-        print(f"\n💾 Saving summary data...")
+        print(f"\n Saving summary data...")
         processor.save_summary_data(summary, all_camera_positions)
         
         # 保存相机信息
         if camera_info:
             with open(os.path.join(output_dir, "camera_info.json"), 'w') as f:
                 json.dump(camera_info, f, indent=2)
-            print(f"✓ Camera info saved to 'camera_info.json'")
+            print(f"Camera info saved to 'camera_info.json'")
         
-        print(f"\n🎉 Processing complete! Check '{output_dir}' for all files.")
+        print(f"\n Processing complete! Check '{output_dir}' for all files.")
         
     except Exception as e:
-        print(f"❌ Error: {str(e)}")
+        print(f" Error: {str(e)}")
         import traceback
         traceback.print_exc()
         
@@ -315,7 +315,7 @@ def main():
         # 释放资源
         if 'reader' in locals():
             reader.release()
-            print("🔄 Resources released")
+            print(" Resources released")
 
 
 if __name__ == "__main__":
