@@ -30,7 +30,7 @@ try:
         if all_calibration:
             print(f"Found calibration data for {len(all_calibration)} cameras")
             
-            # Create a summary dictionary
+
             summary = {}
             
             # Process each camera
